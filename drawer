@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>お絵かきソフト</title>
+  <style>
+    body { text-align: center; background: #eee; font-family: sans-serif; }
+    canvas { border: 1px solid #ccc; background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAJklEQVQoU2NkYGBgYGBg+A8EDAwMDAz8B8RoNAgwMDAwMDADuLAbUBsYMKwAAAABJRU5ErkJggg==') repeat; }
+    .toolbar button {
+      margin: 5px;
+      padding: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>簡易お絵かきソフト</h2>
+
+  <div class="toolbar">
+    <button onclick="setColor('red')">赤</button>
+    <button onclick="setColor('blue')">青</button>
+    <button onclick="setColor('yellow')">黄</button>
+    <button onclick="setColor('eraser')">消しゴム</button>
+    <button onclick="clearCanvas()">全消し</button>
+    <button onclick="saveImage()">保存</button>
+  </div>
+
+  <canvas id="canvas" width="500" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    // 初期化：透明で塗る（透明背景のためには初期化しない）
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    let drawing = false;
+    let currentColor = "red";
+
+    function setColor(color) {
+      currentColor = color;
+    }
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function saveImage() {
+      const link = document.createElement('a');
+      link.download = 'drawing.png';
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }
+
+    canvas.addEventListener("mousedown", () => drawing = true);
+    canvas.addEventListener("mouseup", () => drawing = false);
+    canvas.addEventListener("mouseout", () => drawing = false);
+    canvas.addEventListener("mousemove", draw);
+
+    function draw(e) {
+      if (!drawing) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+
+      if (currentColor === "eraser") {
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.fillStyle = "rgba(0,0,0,1)";
+      } else {
+        ctx.globalCompositeOperation = "source-over";
+        ctx.fillStyle = currentColor;
+      }
+
+      ctx.fill();
+    }
+  </script>
+
+</body>
+</html>
