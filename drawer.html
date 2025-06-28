@@ -12,21 +12,28 @@
       padding: 0;
     }
     .toolbar {
-      padding: 10px;
+      padding: 12px;
       background: #fff;
       position: sticky;
       top: 0;
       z-index: 10;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
     }
     .toolbar button {
-      margin: 5px;
-      padding: 10px 14px;
+      margin: 6px;
+      padding: 12px 20px;
+      font-size: 1.2em;
       font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      background-color: #ddd;
       cursor: pointer;
     }
     canvas {
       border: 1px solid #ccc;
-      touch-action: none; /* スマホでスクロールしないように */
+      touch-action: none;
       background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAJklEQVQoU2NkYGBgYGBg+A8EDAwMDAz8B8RoNAgwMDAwMDADuLAbUBsYMKwAAAABJRU5ErkJggg==') repeat;
     }
   </style>
@@ -36,12 +43,12 @@
   <h2>スマホ対応お絵かきソフト</h2>
 
   <div class="toolbar">
-    <button onclick="setColor('red')">赤</button>
-    <button onclick="setColor('blue')">青</button>
-    <button onclick="setColor('yellow')">黄</button>
-    <button onclick="setColor('eraser')">消しゴム</button>
-    <button onclick="clearCanvas()">全消し</button>
-    <button onclick="saveImage()">保存</button>
+    <button onclick="setColor('red')">🔴 赤</button>
+    <button onclick="setColor('blue')">🔵 青</button>
+    <button onclick="setColor('yellow')">🟡 黄</button>
+    <button onclick="setColor('eraser')">⬜ 消しゴム</button>
+    <button onclick="clearCanvas()">🗑️ 全消し</button>
+    <button onclick="saveImage()">💾 保存</button>
   </div>
 
   <canvas id="canvas" width="500" height="400"></canvas>
@@ -50,7 +57,6 @@
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
 
-    // キャンバスサイズをデバイス幅に調整（スマホ対応）
     function resizeCanvas() {
       const ratio = canvas.height / canvas.width;
       canvas.width = Math.min(window.innerWidth - 20, 500);
