@@ -2,21 +2,38 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>お絵かきソフト</title>
+  <title>スマホ対応お絵かきソフト</title>
   <style>
-    body { text-align: center; background: #eee; font-family: sans-serif; }
-    canvas { border: 1px solid #ccc; background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAJklEQVQoU2NkYGBgYGBg+A8EDAwMDAz8B8RoNAgwMDAwMDADuLAbUBsYMKwAAAABJRU5ErkJggg==') repeat; }
+    body {
+      text-align: center;
+      background: #eee;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .toolbar {
+      padding: 10px;
+      background: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
     .toolbar button {
       margin: 5px;
-      padding: 10px;
+      padding: 10px 14px;
       font-weight: bold;
       cursor: pointer;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      touch-action: none; /* スマホでスクロールしないように */
+      background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAJklEQVQoU2NkYGBgYGBg+A8EDAwMDAz8B8RoNAgwMDAwMDADuLAbUBsYMKwAAAABJRU5ErkJggg==') repeat;
     }
   </style>
 </head>
 <body>
 
-  <h2>簡易お絵かきソフト</h2>
+  <h2>スマホ対応お絵かきソフト</h2>
 
   <div class="toolbar">
     <button onclick="setColor('red')">赤</button>
@@ -33,7 +50,15 @@
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
 
-    // 初期化：透明で塗る（透明背景のためには初期化しない）
+    // キャンバスサイズをデバイス幅に調整（スマホ対応）
+    function resizeCanvas() {
+      const ratio = canvas.height / canvas.width;
+      canvas.width = Math.min(window.innerWidth - 20, 500);
+      canvas.height = canvas.width * ratio;
+    }
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     let drawing = false;
@@ -54,18 +79,25 @@
       link.click();
     }
 
-    canvas.addEventListener("mousedown", () => drawing = true);
-    canvas.addEventListener("mouseup", () => drawing = false);
-    canvas.addEventListener("mouseout", () => drawing = false);
-    canvas.addEventListener("mousemove", draw);
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      if (e.touches && e.touches.length > 0) {
+        return {
+          x: e.touches[0].clientX - rect.left,
+          y: e.touches[0].clientY - rect.top
+        };
+      } else {
+        return {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        };
+      }
+    }
 
     function draw(e) {
       if (!drawing) return;
-
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
+      e.preventDefault();
+      const { x, y } = getPos(e);
       ctx.beginPath();
       ctx.arc(x, y, 5, 0, Math.PI * 2);
 
@@ -79,6 +111,18 @@
 
       ctx.fill();
     }
+
+    // PC用イベント
+    canvas.addEventListener("mousedown", (e) => { drawing = true; draw(e); });
+    canvas.addEventListener("mouseup", () => drawing = false);
+    canvas.addEventListener("mouseout", () => drawing = false);
+    canvas.addEventListener("mousemove", draw);
+
+    // スマホ用イベント
+    canvas.addEventListener("touchstart", (e) => { drawing = true; draw(e); });
+    canvas.addEventListener("touchend", () => drawing = false);
+    canvas.addEventListener("touchcancel", () => drawing = false);
+    canvas.addEventListener("touchmove", draw);
   </script>
 
 </body>
